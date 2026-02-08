@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Flashlingo Pro | الحسابات</title>
+    <title>Flashlingo Pro</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <style>
         :root { --primary: #007bff; --success: #28a745; --danger: #dc3545; --bg: #f8f9fc; --text: #2d3436; --card-bg: #ffffff; --border: #edf2f7; }
@@ -11,12 +11,15 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Segoe UI', Roboto, sans-serif; transition: 0.3s ease; }
         body { background: var(--bg); color: var(--text); margin: 0; padding-bottom: 90px; }
 
-        /* شاشة الدخول */
-        #authScreen { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .auth-box { background: var(--card-bg); padding: 30px; border-radius: 28px; width: 100%; max-width: 400px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); text-align: center; }
-
+        /* شاشة الدخول الاحترافية */
+        #authScreen { position: fixed; inset: 0; background: linear-gradient(135deg, #007bff, #00d2ff); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .auth-box { background: var(--card-bg); padding: 40px 30px; border-radius: 32px; width: 100%; max-width: 400px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); text-align: center; }
+        .auth-box h2 { color: var(--primary); margin-bottom: 10px; font-size: 28px; }
+        .auth-box p { color: #636e72; margin-bottom: 25px; font-size: 14px; }
+        
         .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: var(--card-bg); box-shadow: 0 2px 10px rgba(0,0,0,0.03); position: sticky; top: 0; z-index: 1001; }
         .logo { font-size: 22px; font-weight: 800; color: var(--primary); }
+
         .navbar { position: fixed; bottom: 0; width: 100%; background: var(--card-bg); display: flex; border-top: 1px solid var(--border); z-index: 1000; padding: 10px 0; }
         .navbar button { flex: 1; border: none; background: none; display: flex; flex-direction: column; align-items: center; color: #a0aec0; cursor: pointer; font-size: 12px; font-weight: 600; }
         .navbar button.active { color: var(--primary); }
@@ -24,31 +27,39 @@
 
         .content { display: none; padding: 20px; animation: fadeIn 0.3s ease; }
         .content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; } }
+
         .box { background: var(--card-bg); padding: 25px; border-radius: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid var(--border); margin-bottom: 20px; }
         input, select { width: 100%; padding: 14px 18px; margin: 10px 0; border: 2px solid var(--border); border-radius: 16px; font-size: 16px; background: var(--bg); color: var(--text); outline: none; }
-        .btn { width: 100%; padding: 16px; border-radius: 16px; border: none; font-size: 16px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        input:focus { border-color: var(--primary); }
+        
+        .btn { width: 100%; padding: 16px; border-radius: 16px; border: none; font-size: 16px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 10px; }
         .btn-blue { background: var(--primary); color: white; }
-        
-        .list-item { background: var(--card-bg); border-radius: 20px; margin-bottom: 12px; border: 1px solid var(--border); overflow: hidden; border-right: 6px solid var(--primary); cursor: pointer; }
+        .btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
+
+        .list-item { background: var(--card-bg); border-radius: 20px; margin-bottom: 12px; border: 1px solid var(--border); overflow: hidden; cursor: pointer; position: relative; }
         .list-header { padding: 18px; display: flex; justify-content: space-between; align-items: center; }
-        .list-actions { max-height: 0; padding: 0 18px; display: flex; gap: 15px; background: var(--bg); transition: 0.3s ease; opacity: 0; pointer-events: none; justify-content: space-around; }
-        .list-item.open .list-actions { max-height: 80px; padding: 12px 18px; opacity: 1; border-top: 1px solid var(--border); pointer-events: auto; }
+        .word-info b { font-size: 20px; display: block; color: var(--primary); }
+        .word-info small { font-size: 16px; color: var(--success); font-weight: 600; }
         
+        .list-actions { max-height: 0; padding: 0 18px; display: flex; gap: 15px; background: var(--bg); transition: 0.3s ease; opacity: 0; justify-content: space-around; pointer-events: none; }
+        .list-item.open .list-actions { max-height: 80px; padding: 12px 18px; opacity: 1; border-top: 1px solid var(--border); pointer-events: auto; }
+
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); z-index: 2000; align-items: center; justify-content: center; }
         .modal-box { background: var(--card-bg); padding: 30px; border-radius: 28px; width: 90%; max-width: 400px; text-align: center; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; } }
     </style>
 </head>
 <body data-theme="light" dir="rtl">
 
     <div id="authScreen">
         <div class="auth-box">
-            <h2 class="logo" style="font-size: 28px; margin-bottom: 20px;">Flashlingo Pro</h2>
+            <h2>أهلاً بك 👋</h2>
+            <p>سجل دخولك لحفظ كلماتك الخاصة</p>
             <input type="email" id="authEmail" placeholder="البريد الإلكتروني">
             <input type="password" id="authPass" placeholder="كلمة المرور">
-            <button class="btn btn-blue" onclick="handleAuth('login')">دخول</button>
-            <button class="btn" style="background:none; color:var(--primary); margin-top:10px;" onclick="handleAuth('signup')">إنشاء حساب جديد</button>
-            <p id="authError" style="color:var(--danger); font-size:14px; margin-top:10px;"></p>
+            <button class="btn btn-blue" onclick="handleAuth('login')">تسجيل الدخول</button>
+            <button class="btn btn-outline" onclick="handleAuth('signup')">إنشاء حساب جديد</button>
+            <p id="authError" style="color:var(--danger); margin-top:15px; font-weight:bold"></p>
         </div>
     </div>
 
@@ -71,7 +82,7 @@
     <main id="add" class="content active">
         <div class="box">
             <h3>أضف كلمة جديدة ⭐</h3>
-            <input type="text" id="wordEn" placeholder="Word in English...">
+            <input type="text" id="wordEn" placeholder="الكلمة بالإنجليزية...">
             <input type="text" id="wordAr" placeholder="المعنى بالعربي...">
             <select id="selectGroup"></select>
             <button class="btn btn-blue" onclick="addWord()"><span class="material-symbols-rounded">check_circle</span> حفظ الكلمة</button>
@@ -110,7 +121,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, push, onValue, remove, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getAuth, onAuthStateChanged, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyC5T4j34QdJyyvupVA7VV5BFq8PYvElb4w",
@@ -128,15 +139,17 @@
 
         let currentUser = null, words = [], groups = { "عام": "#007bff" }, currentWord = null, trainIdx = 0;
 
-        // نظام الحسابات
+        // نظام الدخول والخروج
         window.handleAuth = (type) => {
-            const email = document.getElementById('authEmail').value;
-            const pass = document.getElementById('authPass').value;
+            const email = document.getElementById('authEmail').value.trim();
+            const pass = document.getElementById('authPass').value.trim();
             const err = document.getElementById('authError');
+            if(!email || !pass) return err.innerText = "يرجى ملء جميع الخانات";
+            
             if(type === 'signup') {
                 createUserWithEmailAndPassword(auth, email, pass).catch(e => err.innerText = "خطأ: " + e.message);
             } else {
-                signInWithEmailAndPassword(auth, email, pass).catch(e => err.innerText = "خطأ: " + e.message);
+                signInWithEmailAndPassword(auth, email, pass).catch(e => err.innerText = "خطأ: الإيميل أو الباسورد غير صحيح");
             }
         };
 
@@ -146,23 +159,23 @@
             if (user) {
                 currentUser = user;
                 document.getElementById('authScreen').style.display = 'none';
-                initUserData();
+                initData();
             } else {
                 currentUser = null;
                 document.getElementById('authScreen').style.display = 'flex';
             }
         });
 
-        function initUserData() {
-            const userPath = `users/${currentUser.uid}`;
-            onValue(ref(db, `${userPath}/groups`), (s) => {
+        function initData() {
+            const path = `users/${currentUser.uid}`;
+            onValue(ref(db, `${path}/groups`), (s) => {
                 groups = s.val() || { "عام": "#007bff" };
                 updateSelects();
             });
-            onValue(ref(db, `${userPath}/words`), (s) => {
+            onValue(ref(db, `${path}/words`), (s) => {
                 words = [];
                 if(s.val()) Object.entries(s.val()).forEach(([id, w]) => words.push({id, ...w}));
-                if(document.getElementById('list').classList.contains('active')) renderList();
+                renderList();
             });
         }
 
@@ -189,10 +202,13 @@
             const f = document.getElementById('filterList').value;
             const filtered = f === 'all' ? words : words.filter(w => w.group === f);
             document.getElementById('wordsDisplay').innerHTML = filtered.map(w => `
-                <div class="list-item" onclick="this.classList.toggle('open')" style="border-right-color: ${groups[w.group] || '#007bff'}">
-                    <div class="list-header"><div><b>${w.en}</b><br><small>${w.ar}</small></div><span class="material-symbols-rounded">expand_more</span></div>
+                <div class="list-item" onclick="this.classList.toggle('open')" style="border-right: 6px solid ${groups[w.group] || '#007bff'}">
+                    <div class="list-header">
+                        <div class="word-info"><b>${w.en}</b><small>${w.ar}</small></div>
+                        <span class="material-symbols-rounded">expand_more</span>
+                    </div>
                     <div class="list-actions" onclick="event.stopPropagation()">
-                        <button onclick="speak('${w.en}')" style="border:none;background:none;"><span class="material-symbols-rounded">volume_up</span></button>
+                        <button onclick="speak('${w.en}')" style="border:none;background:none;color:#a0aec0"><span class="material-symbols-rounded">volume_up</span></button>
                         <button onclick="deleteWord('${w.id}')" style="border:none;background:none;color:var(--danger)"><span class="material-symbols-rounded">delete</span></button>
                     </div>
                 </div>`).join('');
@@ -232,6 +248,7 @@
             document.getElementById('feedback').innerText = res ? "صح! ✅" : "خطأ ❌";
             document.getElementById('feedback').style.color = res ? "green" : "red";
         };
+        window.resetCard = () => { trainIdx = 0; document.getElementById('displayEn').innerText = "جاهز؟"; document.getElementById('displayAr').style.display = 'none'; };
     </script>
 </body>
 </html>
