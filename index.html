@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -37,7 +38,6 @@
         .list-actions { display: none; padding: 10px; background: var(--bg); justify-content: space-around; border-top: 1px solid var(--border); }
         .list-item.open .list-actions { display: flex; }
 
-        /* مودال عصري */
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 3000; align-items: center; justify-content: center; padding: 20px; }
         .modal-box { background: var(--card-bg); padding: 25px; border-radius: 25px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
     </style>
@@ -48,7 +48,7 @@
         <div class="auth-box">
             <h2 style="color:var(--primary)">Flashlingo Pro</h2>
             <input type="email" id="authEmail" placeholder="الإيميل">
-            <input type="password" id="authPass" placeholder="الباسورد (6 خانات)">
+            <input type="password" id="authPass" placeholder="الباسورد">
             <button class="btn" onclick="handleAuth()">دخول / تسجيل</button>
         </div>
     </div>
@@ -92,13 +92,13 @@
             <h1 id="displayEn" style="font-size:40px">؟</h1>
             <h2 id="displayAr" style="display:none; color:#28a745; font-size:30px"></h2>
             <button id="showBtn" class="btn" style="display:none; margin: 15px auto;" onclick="showMeaning()">إظهار المعنى</button>
-            <button class="btn" onclick="nextCard()">التالي</button>
+            <button class="btn" id="btn-next" onclick="nextCard()">التالي</button>
             
             <div style="margin-top:20px; border-top:1px solid var(--border); padding-top:15px">
                 <label><input type="checkbox" id="writeMode" onchange="updateWriteUI()"> <span id="txt-write-mode">وضع الكتابة</span></label>
                 <div id="writeFields" style="display:none; margin-top:10px">
                     <input type="text" id="writeInput" placeholder="Write here...">
-                    <button class="btn" onclick="checkAnswer()">تحقق</button>
+                    <button class="btn" id="btn-check" onclick="checkAnswer()">تحقق</button>
                     <div id="feedback" style="margin-top:10px; font-weight:bold"></div>
                 </div>
             </div>
@@ -134,9 +134,15 @@
 
         window.handleAuth = async () => {
             const e = document.getElementById('authEmail').value, p = document.getElementById('authPass').value;
-            if(!e || p.length < 6) return alert("Error in data");
-            try { await signInWithEmailAndPassword(auth, e, p); } 
-            catch { await createUserWithEmailAndPassword(auth, e, p).catch(err => alert(err.message)); }
+            if(!e || p.length < 6) return showStatus(lang === 'ar' ? 'أدخل إيميل صحيح وباسورد 6 خانات' : 'Enter valid email & 6-digit password');
+            try { 
+                await signInWithEmailAndPassword(auth, e, p); 
+                showStatus(lang === 'ar' ? 'تم تسجيل الدخول!' : 'Logged in!');
+            } catch { 
+                await createUserWithEmailAndPassword(auth, e, p)
+                .then(() => showStatus(lang === 'ar' ? 'تم إنشاء الحساب بنجاح!' : 'Account created successfully!'))
+                .catch(err => showStatus(err.message)); 
+            }
         };
 
         window.logout = () => signOut(auth);
@@ -156,34 +162,31 @@
         }
 
         window.addWord = () => {
-            const en = document.getElementById('wordEn').value, ar = document.getElementById('wordAr').value;
-            if(en && ar) {
-                push(ref(db, `users/${currentUser.uid}/words`), { en, ar, group: document.getElementById('selectGroup').value });
-                document.getElementById('wordEn').value = ""; document.getElementById('wordAr').value = "";
-                showStatus(lang === 'ar' ? 'تم حفظ الكلمة بنجاح!' : 'Word saved successfully!');
-            }
+            const en = document.getElementById('wordEn').value.trim(), ar = document.getElementById('wordAr').value.trim();
+            if(!en || !ar) return showStatus(lang === 'ar' ? 'يرجى ملء جميع الخانات' : 'Please fill all fields');
+            push(ref(db, `users/${currentUser.uid}/words`), { en, ar, group: document.getElementById('selectGroup').value });
+            document.getElementById('wordEn').value = ""; document.getElementById('wordAr').value = "";
+            showStatus(lang === 'ar' ? 'تم حفظ الكلمة!' : 'Word saved!');
         };
 
         window.addGroup = () => {
-            const n = document.getElementById('groupName').value;
-            if(n) {
-                groups[n] = document.getElementById('groupColor').value;
-                set(ref(db, `users/${currentUser.uid}/groups`), groups);
-                document.getElementById('groupName').value = "";
-                showStatus(lang === 'ar' ? 'تمت إضافة المجموعة!' : 'Group added!');
-            }
+            const n = document.getElementById('groupName').value.trim();
+            if(!n) return showStatus(lang === 'ar' ? 'أدخل اسم المجموعة' : 'Enter group name');
+            groups[n] = document.getElementById('groupColor').value;
+            set(ref(db, `users/${currentUser.uid}/groups`), groups);
+            document.getElementById('groupName').value = "";
+            showStatus(lang === 'ar' ? 'تمت إضافة المجموعة!' : 'Group added!');
         };
 
-        // التعديل العصري
         window.openEditModal = (id, oldEn, oldAr, oldGroup) => {
             let groupOpts = Object.keys(groups).map(g => `<option value="${g}" ${g===oldGroup?'selected':''}>${g}</option>`).join('');
             document.getElementById('modalBox').innerHTML = `
-                <h3>${lang === 'ar' ? 'تعديل الكلمة' : 'Edit Word'}</h3>
+                <h3 style="color:var(--primary)">${lang === 'ar' ? 'تعديل الكلمة' : 'Edit Word'}</h3>
                 <input type="text" id="editEn" value="${oldEn}">
                 <input type="text" id="editAr" value="${oldAr}">
                 <select id="editGroup">${groupOpts}</select>
-                <button class="btn" onclick="saveEdit('${id}')">${lang === 'ar' ? 'حفظ التغييرات' : 'Save Changes'}</button>
-                <button class="btn" style="background:#ccc; margin-top:10px" onclick="closeModal()">X</button>
+                <button class="btn" onclick="saveEdit('${id}')">${lang === 'ar' ? 'حفظ' : 'Save'}</button>
+                <button class="btn" style="background:#6c757d; margin-top:10px" onclick="closeModal()">${lang === 'ar' ? 'إلغاء' : 'Cancel'}</button>
             `;
             document.getElementById('customModal').style.display = 'flex';
         };
@@ -191,6 +194,22 @@
         window.saveEdit = (id) => {
             const en = document.getElementById('editEn').value, ar = document.getElementById('editAr').value, gp = document.getElementById('editGroup').value;
             update(ref(db, `users/${currentUser.uid}/words/${id}`), { en, ar, group: gp });
+            closeModal();
+            showStatus(lang === 'ar' ? 'تم التعديل!' : 'Updated!');
+        };
+
+        window.confirmDelete = (id) => {
+            document.getElementById('modalBox').innerHTML = `
+                <h3 style="color:var(--danger)">${lang === 'ar' ? 'تأكيد الحذف؟' : 'Confirm Delete?'}</h3>
+                <p>${lang === 'ar' ? 'هل أنت متأكد من حذف هذه الكلمة؟' : 'Are you sure you want to delete this word?'}</p>
+                <button class="btn" style="background:var(--danger)" onclick="deleteWord('${id}')">${lang === 'ar' ? 'حذف' : 'Delete'}</button>
+                <button class="btn" style="background:#6c757d; margin-top:10px" onclick="closeModal()">${lang === 'ar' ? 'إلغاء' : 'Cancel'}</button>
+            `;
+            document.getElementById('customModal').style.display = 'flex';
+        };
+
+        window.deleteWord = (id) => {
+            remove(ref(db, `users/${currentUser.uid}/words/${id}`));
             closeModal();
         };
 
@@ -206,7 +225,7 @@
                     <div class="list-actions" onclick="event.stopPropagation()">
                         <button onclick="speak('${w.en}')" style="background:none;border:none;color:var(--primary)"><span class="material-symbols-rounded">volume_up</span></button>
                         <button onclick="openEditModal('${w.id}','${w.en}','${w.ar}','${w.group}')" style="background:none;border:none;color:green"><span class="material-symbols-rounded">edit</span></button>
-                        <button onclick="deleteWord('${w.id}')" style="background:none;border:none;color:red"><span class="material-symbols-rounded">delete</span></button>
+                        <button onclick="confirmDelete('${w.id}')" style="background:none;border:none;color:var(--danger)"><span class="material-symbols-rounded">delete</span></button>
                     </div>
                 </div>`).join('');
         };
@@ -215,19 +234,20 @@
             lang = lang === 'ar' ? 'en' : 'ar';
             document.getElementById('langBtn').innerText = lang === 'ar' ? 'EN' : 'AR';
             document.body.dir = lang === 'ar' ? 'rtl' : 'ltr';
-            const dictionary = {
-                ar: { add: 'إضافة', list: 'كلماتي', train: 'تدريب', title: 'إضافة كلمة جديدة', gtitle: 'إضافة مجموعة', btnW: 'حفظ الكلمة', btnG: 'حفظ المجموعة', write: 'وضع الكتابة' },
-                en: { add: 'Add', list: 'My Words', train: 'Train', title: 'Add New Word', gtitle: 'Add Group', btnW: 'Save Word', btnG: 'Save Group', write: 'Writing Mode' }
-            };
-            const d = dictionary[lang];
+            const d = {
+                ar: { add: 'إضافة', list: 'كلماتي', train: 'تدريب', title: 'إضافة كلمة جديدة', gtitle: 'إضافة مجموعة', btnW: 'حفظ الكلمة', btnG: 'حفظ المجموعة', write: 'وضع الكتابة', next: 'التالي', check: 'تحقق', all: 'الكل' },
+                en: { add: 'Add', list: 'My Words', train: 'Train', title: 'Add New Word', gtitle: 'Add Group', btnW: 'Save Word', btnG: 'Save Group', write: 'Writing Mode', next: 'Next', check: 'Check', all: 'All' }
+            }[lang];
             document.getElementById('nav-add').innerText = d.add; document.getElementById('nav-list').innerText = d.list; document.getElementById('nav-train').innerText = d.train;
             document.getElementById('txt-add-title').innerText = d.title; document.getElementById('txt-group-title').innerText = d.gtitle;
             document.getElementById('btn-save-word').innerText = d.btnW; document.getElementById('btn-save-group').innerText = d.btnG;
-            document.getElementById('txt-write-mode').innerText = d.write;
+            document.getElementById('txt-write-mode').innerText = d.write; document.getElementById('btn-next').innerText = d.next;
+            document.getElementById('btn-check').innerText = d.check;
+            updateSelects(); renderList();
         };
 
         window.showStatus = (msg) => {
-            document.getElementById('modalBox').innerHTML = `<h3>${msg}</h3><button class="btn" onclick="closeModal()">OK</button>`;
+            document.getElementById('modalBox').innerHTML = `<h3 style="color:var(--primary)">${msg}</h3><button class="btn" onclick="closeModal()">OK</button>`;
             document.getElementById('customModal').style.display = 'flex';
         };
 
@@ -252,8 +272,7 @@
         window.updateWriteUI = () => document.getElementById('writeFields').style.display = document.getElementById('writeMode').checked ? 'block' : 'none';
         window.checkAnswer = () => {
             const ans = document.getElementById('writeInput').value.trim().toLowerCase();
-            const correct = currentWord.en.toLowerCase();
-            const isRight = ans === correct;
+            const isRight = ans === currentWord.en.toLowerCase();
             document.getElementById('feedback').innerText = isRight ? (lang === 'ar' ? 'صح! ✅' : 'Correct! ✅') : (lang === 'ar' ? 'خطأ! ❌' : 'Wrong! ❌');
             document.getElementById('feedback').style.color = isRight ? 'green' : 'red';
         };
@@ -264,7 +283,6 @@
             document.getElementById('filterList').innerHTML = `<option value="all">${lang==='ar'?'الكل':'All'}</option>` + opts;
         }
 
-        window.deleteWord = (id) => { if(confirm("Delete?")) remove(ref(db, `users/${currentUser.uid}/words/${id}`)); };
         window.toggleTheme = () => { const b = document.body; b.setAttribute('data-theme', b.getAttribute('data-theme')==='dark'?'light':'dark'); };
         window.speak = (t) => { let s = new SpeechSynthesisUtterance(t); s.lang='en-US'; window.speechSynthesis.speak(s); };
     </script>
