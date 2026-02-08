@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Flashlingo Pro | النسخة الأصلية المتصلة</title>
+    <title>Flashlingo Pro | الحسابات</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <style>
         :root { --primary: #007bff; --success: #28a745; --danger: #dc3545; --bg: #f8f9fc; --text: #2d3436; --card-bg: #ffffff; --border: #edf2f7; }
@@ -11,9 +11,12 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Segoe UI', Roboto, sans-serif; transition: 0.3s ease; }
         body { background: var(--bg); color: var(--text); margin: 0; padding-bottom: 90px; }
 
+        /* شاشة الدخول */
+        #authScreen { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .auth-box { background: var(--card-bg); padding: 30px; border-radius: 28px; width: 100%; max-width: 400px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); text-align: center; }
+
         .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: var(--card-bg); box-shadow: 0 2px 10px rgba(0,0,0,0.03); position: sticky; top: 0; z-index: 1001; }
         .logo { font-size: 22px; font-weight: 800; color: var(--primary); }
-
         .navbar { position: fixed; bottom: 0; width: 100%; background: var(--card-bg); display: flex; border-top: 1px solid var(--border); z-index: 1000; padding: 10px 0; }
         .navbar button { flex: 1; border: none; background: none; display: flex; flex-direction: column; align-items: center; color: #a0aec0; cursor: pointer; font-size: 12px; font-weight: 600; }
         .navbar button.active { color: var(--primary); }
@@ -21,59 +24,63 @@
 
         .content { display: none; padding: 20px; animation: fadeIn 0.3s ease; }
         .content.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; } }
-
         .box { background: var(--card-bg); padding: 25px; border-radius: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid var(--border); margin-bottom: 20px; }
         input, select { width: 100%; padding: 14px 18px; margin: 10px 0; border: 2px solid var(--border); border-radius: 16px; font-size: 16px; background: var(--bg); color: var(--text); outline: none; }
-        
         .btn { width: 100%; padding: 16px; border-radius: 16px; border: none; font-size: 16px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .btn-blue { background: var(--primary); color: white; }
-
-        .list-item { background: var(--card-bg); border-radius: 20px; margin-bottom: 12px; border: 1px solid var(--border); overflow: hidden; cursor: pointer; position: relative; }
-        .list-header { padding: 18px; display: flex; justify-content: space-between; align-items: center; }
-        .word-info b { font-size: 20px; display: block; color: var(--primary); }
-        .word-info small { font-size: 16px; color: var(--success); font-weight: 600; }
         
-        .group-tag { font-size: 10px; background: var(--bg); padding: 4px 10px; border-radius: 8px; color: #718096; font-weight: bold; margin-top: 5px; display: inline-block; border: 1px solid var(--border); }
-
-        .list-actions { max-height: 0; padding: 0 18px; display: flex; gap: 15px; background: var(--bg); transition: 0.3s ease; opacity: 0; justify-content: space-around; pointer-events: none; }
+        .list-item { background: var(--card-bg); border-radius: 20px; margin-bottom: 12px; border: 1px solid var(--border); overflow: hidden; border-right: 6px solid var(--primary); cursor: pointer; }
+        .list-header { padding: 18px; display: flex; justify-content: space-between; align-items: center; }
+        .list-actions { max-height: 0; padding: 0 18px; display: flex; gap: 15px; background: var(--bg); transition: 0.3s ease; opacity: 0; pointer-events: none; justify-content: space-around; }
         .list-item.open .list-actions { max-height: 80px; padding: 12px 18px; opacity: 1; border-top: 1px solid var(--border); pointer-events: auto; }
-
+        
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); z-index: 2000; align-items: center; justify-content: center; }
         .modal-box { background: var(--card-bg); padding: 30px; border-radius: 28px; width: 90%; max-width: 400px; text-align: center; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; } }
     </style>
 </head>
 <body data-theme="light" dir="rtl">
 
-    <div class="header">
-        <div class="logo">Flashlingo Pro</div>
-        <div class="header-btns" style="display:flex; gap:10px">
-            <button class="btn" style="width:auto; padding:6px 12px; background:var(--bg); color:var(--primary); font-size:14px" onclick="toggleLang()" id="langBtn">EN</button>
-            <button class="icon-btn" style="background:none; border:none; cursor:pointer; color:var(--text)" onclick="toggleTheme()" id="themeIcon"><span class="material-symbols-rounded">dark_mode</span></button>
+    <div id="authScreen">
+        <div class="auth-box">
+            <h2 class="logo" style="font-size: 28px; margin-bottom: 20px;">Flashlingo Pro</h2>
+            <input type="email" id="authEmail" placeholder="البريد الإلكتروني">
+            <input type="password" id="authPass" placeholder="كلمة المرور">
+            <button class="btn btn-blue" onclick="handleAuth('login')">دخول</button>
+            <button class="btn" style="background:none; color:var(--primary); margin-top:10px;" onclick="handleAuth('signup')">إنشاء حساب جديد</button>
+            <p id="authError" style="color:var(--danger); font-size:14px; margin-top:10px;"></p>
         </div>
     </div>
 
-    <div id="customModal" class="modal-overlay"><div class="modal-box" id="modalBox"></div></div>
+    <div class="header">
+        <div class="logo">Flashlingo Pro</div>
+        <div style="display:flex; gap:10px">
+            <button class="icon-btn" style="background:none; border:none; cursor:pointer; color:var(--text)" onclick="toggleTheme()"><span class="material-symbols-rounded">dark_mode</span></button>
+            <button class="icon-btn" style="background:none; border:none; cursor:pointer; color:var(--danger)" onclick="logout()"><span class="material-symbols-rounded">logout</span></button>
+        </div>
+    </div>
 
     <nav class="navbar">
-        <button onclick="showTab('add')" id="tab-add" class="active"><span class="material-symbols-rounded">add_circle</span><span id="nav-add">إضافة</span></button>
-        <button onclick="showTab('list')" id="tab-list"><span class="material-symbols-rounded">menu_book</span><span id="nav-list">كلماتي</span></button>
-        <button onclick="showTab('train')" id="tab-train"><span class="material-symbols-rounded">track_changes</span><span id="nav-train">تدريب</span></button>
+        <button onclick="showTab('add')" id="tab-add" class="active"><span class="material-symbols-rounded">add_circle</span><span>إضافة</span></button>
+        <button onclick="showTab('list')" id="tab-list"><span class="material-symbols-rounded">menu_book</span><span>كلماتي</span></button>
+        <button onclick="showTab('train')" id="tab-train"><span class="material-symbols-rounded">track_changes</span><span>تدريب</span></button>
     </nav>
+
+    <div id="customModal" class="modal-overlay"><div class="modal-box" id="modalBox"></div></div>
 
     <main id="add" class="content active">
         <div class="box">
-            <h3 id="h-add-word">أضف كلمة جديدة ⭐</h3>
-            <input type="text" id="wordEn" placeholder="الكلمة بالإنجليزية...">
+            <h3>أضف كلمة جديدة ⭐</h3>
+            <input type="text" id="wordEn" placeholder="Word in English...">
             <input type="text" id="wordAr" placeholder="المعنى بالعربي...">
             <select id="selectGroup"></select>
-            <button class="btn btn-blue" onclick="addWord()"><span class="material-symbols-rounded">check_circle</span> <span id="btn-save-word">حفظ الكلمة</span></button>
+            <button class="btn btn-blue" onclick="addWord()"><span class="material-symbols-rounded">check_circle</span> حفظ الكلمة</button>
         </div>
         <div class="box">
-            <h3 id="h-add-group">إنشاء مجموعة جديدة</h3>
-            <input type="text" id="groupName" placeholder="اسم المجموعة (مثل: أفعال، سفر)...">
+            <h3>إنشاء مجموعة جديدة</h3>
+            <input type="text" id="groupName" placeholder="اسم المجموعة...">
             <input type="color" id="groupColor" value="#007bff" style="height:45px; padding:2px">
-            <button class="btn btn-blue" onclick="addGroup()"><span class="material-symbols-rounded">folder_open</span> <span id="btn-save-group">حفظ المجموعة</span></button>
+            <button class="btn btn-blue" onclick="addGroup()"><span class="material-symbols-rounded">folder_open</span> حفظ المجموعة</button>
         </div>
     </main>
 
@@ -88,13 +95,12 @@
             <h1 id="displayEn" style="font-size:32px; margin:0">جاهز؟</h1>
             <h2 id="displayAr" style="display:none; color:var(--success); margin-top:15px"></h2>
             <button id="showBtn" class="btn" style="background:#4a5568; color:white; margin:20px auto; display:none" onclick="showMeaning()">إظهار المعنى</button>
-            <button class="btn btn-blue" onclick="nextCard()" id="btn-next">الكلمة التالية</button>
-            
+            <button class="btn btn-blue" onclick="nextCard()">الكلمة التالية</button>
             <div id="writeArea" style="margin-top:20px; border-top:1px solid var(--border); padding-top:20px">
-                <label style="display:flex; align-items:center; gap:8px; font-weight:bold"><input type="checkbox" id="writeMode" onchange="updateWriteUI()"> <span id="label-write">تفعيل وضع الكتابة</span></label>
+                <label style="display:flex; align-items:center; gap:8px; font-weight:bold"><input type="checkbox" id="writeMode" onchange="updateWriteUI()"> وضع الكتابة</label>
                 <div id="writeFields" style="display:none; margin-top:10px">
                     <input type="text" id="writeInput" placeholder="اكتب الكلمة هنا...">
-                    <button class="btn" style="background:var(--text); color:white" onclick="checkAnswer()" id="btn-check">تحقق</button>
+                    <button class="btn" style="background:var(--text); color:white" onclick="checkAnswer()">تحقق</button>
                     <div id="feedback" style="margin-top:10px; font-weight:bold"></div>
                 </div>
             </div>
@@ -102,9 +108,9 @@
     </main>
 
     <script type="module">
-        // استدعاء Firebase
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, push, onValue, remove, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyC5T4j34QdJyyvupVA7VV5BFq8PYvElb4w",
@@ -118,188 +124,114 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-        const wordsRef = ref(db, 'words');
-        const groupsRef = ref(db, 'groups');
+        const auth = getAuth(app);
 
-        let words = [], groups = { "عام": "#007bff" }, lang = 'ar', currentWord = null, trainIdx = 0;
+        let currentUser = null, words = [], groups = { "عام": "#007bff" }, currentWord = null, trainIdx = 0;
 
-        const translations = {
-            ar: {
-                navAdd: "إضافة", navList: "كلماتي", navTrain: "تدريب",
-                hAddWord: "أضف كلمة جديدة ⭐", hAddGroup: "إنشاء مجموعة جديدة",
-                pWordEn: "الكلمة بالإنجليزية...", pWordAr: "المعنى بالعربي...",
-                pGroupName: "اسم المجموعة (مثل: أفعال، سفر)...",
-                btnSaveWord: "حفظ الكلمة", btnSaveGroup: "حفظ المجموعة",
-                btnNext: "الكلمة التالية", btnCheck: "تحقق",
-                labelWrite: "تفعيل وضع الكتابة", pWrite: "اكتب الكلمة هنا...",
-                msgSaved: "تم الحفظ بنجاح!", msgGroupSaved: "تمت إضافة المجموعة بنجاح!",
-                msgFill: "يرجى تعبئة جميع الخانات", filterAll: "الكل", filterGroups: "كل المجموعات"
-            },
-            en: {
-                navAdd: "Add", navList: "My Words", navTrain: "Train",
-                hAddWord: "Add New Word ⭐", hAddGroup: "New Group",
-                pWordEn: "Word in English...", pWordAr: "Meaning in Arabic...",
-                pGroupName: "Group Name (e.g. Verbs)...",
-                btnSaveWord: "Save Word", btnSaveGroup: "Save Group",
-                btnNext: "Next Word", btnCheck: "Check",
-                labelWrite: "Writing Mode", pWrite: "Type the word here...",
-                msgSaved: "Saved Successfully!", msgGroupSaved: "Group Added Successfully!",
-                msgFill: "Please fill all fields", filterAll: "All", filterGroups: "All Groups"
+        // نظام الحسابات
+        window.handleAuth = (type) => {
+            const email = document.getElementById('authEmail').value;
+            const pass = document.getElementById('authPass').value;
+            const err = document.getElementById('authError');
+            if(type === 'signup') {
+                createUserWithEmailAndPassword(auth, email, pass).catch(e => err.innerText = "خطأ: " + e.message);
+            } else {
+                signInWithEmailAndPassword(auth, email, pass).catch(e => err.innerText = "خطأ: " + e.message);
             }
         };
 
-        // جلب المجموعات من السيرفر
-        onValue(groupsRef, (snapshot) => {
-            const data = snapshot.val();
-            if(data) { groups = data; } 
-            else { groups = { "عام": "#007bff" }; }
-            updateSelects();
+        window.logout = () => signOut(auth);
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('authScreen').style.display = 'none';
+                initUserData();
+            } else {
+                currentUser = null;
+                document.getElementById('authScreen').style.display = 'flex';
+            }
         });
 
-        // جلب الكلمات من السيرفر
-        onValue(wordsRef, (snapshot) => {
-            const data = snapshot.val();
-            words = [];
-            if(data) {
-                Object.entries(data).forEach(([id, w]) => {
-                    words.push({ id, ...w });
-                });
+        function initUserData() {
+            const userPath = `users/${currentUser.uid}`;
+            onValue(ref(db, `${userPath}/groups`), (s) => {
+                groups = s.val() || { "عام": "#007bff" };
+                updateSelects();
+            });
+            onValue(ref(db, `${userPath}/words`), (s) => {
+                words = [];
+                if(s.val()) Object.entries(s.val()).forEach(([id, w]) => words.push({id, ...w}));
+                if(document.getElementById('list').classList.contains('active')) renderList();
+            });
+        }
+
+        window.addWord = () => {
+            const en = document.getElementById('wordEn').value.trim(), ar = document.getElementById('wordAr').value.trim();
+            if(en && ar) {
+                push(ref(db, `users/${currentUser.uid}/words`), { en, ar, group: document.getElementById('selectGroup').value });
+                document.getElementById('wordEn').value = ""; document.getElementById('wordAr').value = "";
             }
-            if(document.getElementById('list').classList.contains('active')) renderList();
-        });
+        };
 
-        window.addWord = function() {
-            let en = document.getElementById('wordEn').value.trim(), ar = document.getElementById('wordAr').value.trim();
-            if(!en || !ar) return showMsg(translations[lang].msgFill);
-            push(wordsRef, { en, ar, group: document.getElementById('selectGroup').value });
-            document.getElementById('wordEn').value = ""; document.getElementById('wordAr').value = "";
-            showMsg(translations[lang].msgSaved);
-        }
-
-        window.addGroup = function() {
-            let n = document.getElementById('groupName').value.trim();
-            if(!n) return showMsg(translations[lang].msgFill);
-            groups[n] = document.getElementById('groupColor').value; 
-            set(groupsRef, groups); // حفظ المجموعات كاملة في السيرفر
-            document.getElementById('groupName').value=''; 
-            showMsg(translations[lang].msgGroupSaved);
-        }
-
-        window.deleteWord = function(id) {
-            if(confirm("هل أنت متأكد من الحذف؟")) {
-                remove(ref(db, 'words/' + id));
+        window.addGroup = () => {
+            const n = document.getElementById('groupName').value.trim();
+            if(n) {
+                groups[n] = document.getElementById('groupColor').value;
+                set(ref(db, `users/${currentUser.uid}/groups`), groups);
+                document.getElementById('groupName').value = "";
             }
-        }
+        };
 
-        window.toggleLang = function() {
-            lang = lang === 'ar' ? 'en' : 'ar';
-            document.body.dir = lang === 'ar' ? 'rtl' : 'ltr';
-            document.getElementById('langBtn').innerText = lang === 'ar' ? 'EN' : 'AR';
-            const t = translations[lang];
-            document.getElementById('nav-add').innerText = t.navAdd;
-            document.getElementById('nav-list').innerText = t.navList;
-            document.getElementById('nav-train').innerText = t.navTrain;
-            document.getElementById('h-add-word').innerText = t.hAddWord;
-            document.getElementById('h-add-group').innerText = t.hAddGroup;
-            document.getElementById('wordEn').placeholder = t.pWordEn;
-            document.getElementById('wordAr').placeholder = t.pWordAr;
-            document.getElementById('groupName').placeholder = t.pGroupName;
-            document.getElementById('btn-save-word').innerText = t.btnSaveWord;
-            document.getElementById('btn-save-group').innerText = t.btnSaveGroup;
-            document.getElementById('btn-next').innerText = t.btnNext;
-            document.getElementById('btn-check').innerText = t.btnCheck;
-            document.getElementById('label-write').innerText = t.labelWrite;
-            document.getElementById('writeInput').placeholder = t.pWrite;
-            updateSelects(); renderList();
-        }
+        window.deleteWord = (id) => { if(confirm("حذف؟")) remove(ref(db, `users/${currentUser.uid}/words/${id}`)); };
 
-        window.toggleTheme = function() {
-            const b = document.body;
-            b.setAttribute('data-theme', b.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
-            document.getElementById('themeIcon').innerHTML = b.getAttribute('data-theme') === 'dark' ? '<span class="material-symbols-rounded">light_mode</span>' : '<span class="material-symbols-rounded">dark_mode</span>';
-        }
+        window.renderList = () => {
+            const f = document.getElementById('filterList').value;
+            const filtered = f === 'all' ? words : words.filter(w => w.group === f);
+            document.getElementById('wordsDisplay').innerHTML = filtered.map(w => `
+                <div class="list-item" onclick="this.classList.toggle('open')" style="border-right-color: ${groups[w.group] || '#007bff'}">
+                    <div class="list-header"><div><b>${w.en}</b><br><small>${w.ar}</small></div><span class="material-symbols-rounded">expand_more</span></div>
+                    <div class="list-actions" onclick="event.stopPropagation()">
+                        <button onclick="speak('${w.en}')" style="border:none;background:none;"><span class="material-symbols-rounded">volume_up</span></button>
+                        <button onclick="deleteWord('${w.id}')" style="border:none;background:none;color:var(--danger)"><span class="material-symbols-rounded">delete</span></button>
+                    </div>
+                </div>`).join('');
+        };
 
         function updateSelects() {
             let opts = Object.keys(groups).map(g => `<option value="${g}">${g}</option>`).join('');
-            const t = translations[lang];
             document.getElementById('selectGroup').innerHTML = opts;
-            document.getElementById('filterList').innerHTML = `<option value="all">${t.filterAll}</option>` + opts;
-            document.getElementById('filterTrain').innerHTML = `<option value="all">${t.filterGroups}</option>` + opts;
+            document.getElementById('filterList').innerHTML = `<option value="all">الكل</option>` + opts;
+            document.getElementById('filterTrain').innerHTML = `<option value="all">الكل</option>` + opts;
         }
 
-        window.renderList = function() {
-            let f = document.getElementById('filterList').value;
-            let filtered = f === 'all' ? words : words.filter(w => w.group === f);
-            document.getElementById('wordsDisplay').innerHTML = filtered.map(w => `
-                <div class="list-item" onclick="this.classList.toggle('open')" style="border-right: 6px solid ${groups[w.group] || '#ddd'}">
-                    <div class="list-header">
-                        <div class="word-info">
-                            <b>${w.en}</b>
-                            <small>${w.ar}</small>
-                            <span class="group-tag">${w.group}</span>
-                        </div>
-                        <span class="material-symbols-rounded">expand_more</span>
-                    </div>
-                    <div class="list-actions" onclick="event.stopPropagation()">
-                        <button class="icon-btn" style="background:none; border:none; color:#a0aec0" onclick="speak('${w.en}')"><span class="material-symbols-rounded">volume_up</span></button>
-                        <button class="icon-btn" style="background:none; border:none; color:#a0aec0" onclick="openEdit('${w.id}')"><span class="material-symbols-rounded">edit</span></button>
-                        <button class="icon-btn" style="background:none; border:none; color:var(--danger)" onclick="deleteWord('${w.id}')"><span class="material-symbols-rounded">delete</span></button>
-                    </div>
-                </div>
-            `).join('');
-        }
+        window.showTab = (id) => {
+            document.querySelectorAll('.content, .navbar button').forEach(e => e.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            document.getElementById('tab-' + id).classList.add('active');
+            if(id === 'list') renderList();
+        };
 
-        window.openEdit = function(id) {
-            let w = words.find(x => x.id === id);
-            let gOpt = Object.keys(groups).map(g => `<option value="${g}" ${g===w.group?'selected':''}>${g}</option>`).join('');
-            document.getElementById('modalBox').innerHTML = `
-                <h3>${lang==='ar'?'تعديل':'Edit'}</h3>
-                <input type="text" id="eEn" value="${w.en}">
-                <input type="text" id="eAr" value="${w.ar}">
-                <select id="eG">${gOpt}</select>
-                <button class="btn btn-blue" onclick="saveEdit('${id}')">${lang==='ar'?'حفظ':'Save'}</button>
-            `;
-            document.getElementById('customModal').style.display='flex';
-        }
-
-        window.saveEdit = function(id) {
-            const en = document.getElementById('eEn').value;
-            const ar = document.getElementById('eAr').value;
-            const group = document.getElementById('eG').value;
-            set(ref(db, 'words/' + id), { en, ar, group });
-            closeModal();
-        }
-
-        window.nextCard = function() {
+        window.nextCard = () => {
             let f = document.getElementById('filterTrain').value;
             let list = f === 'all' ? words : words.filter(w => w.group === f);
             if(!list.length) return;
-            trainIdx = (trainIdx % list.length) + 1;
-            currentWord = list[trainIdx-1];
+            currentWord = list[trainIdx % list.length];
             document.getElementById('displayEn').innerText = currentWord.en;
             document.getElementById('displayAr').style.display = 'none';
             document.getElementById('showBtn').style.display = 'block';
-            document.getElementById('feedback').innerText = ""; document.getElementById('writeInput').value = "";
-        }
+            trainIdx++;
+        };
 
-        window.checkAnswer = function() {
+        window.showMeaning = () => { document.getElementById('displayAr').innerText = currentWord.ar; document.getElementById('displayAr').style.display='block'; document.getElementById('showBtn').style.display='none'; };
+        window.updateWriteUI = () => document.getElementById('writeFields').style.display = document.getElementById('writeMode').checked ? 'block' : 'none';
+        window.toggleTheme = () => { const b = document.body; b.setAttribute('data-theme', b.getAttribute('data-theme')==='dark'?'light':'dark'); };
+        window.speak = (t) => { let s = new SpeechSynthesisUtterance(t); s.lang='en-US'; window.speechSynthesis.speak(s); };
+        window.checkAnswer = () => {
             let res = document.getElementById('writeInput').value.trim().toLowerCase() === currentWord.en.toLowerCase();
-            document.getElementById('feedback').innerText = res ? (lang==='ar'?"صح! ✅":"Correct! ✅") : (lang==='ar'?"خطأ ❌":"Wrong ❌");
+            document.getElementById('feedback').innerText = res ? "صح! ✅" : "خطأ ❌";
             document.getElementById('feedback').style.color = res ? "green" : "red";
-        }
-
-        window.showMsg = function(m) { document.getElementById('modalBox').innerHTML = `<h3>${m}</h3><button class="btn btn-blue" style="margin-top:15px" onclick="closeModal()">OK</button>`; document.getElementById('customModal').style.display='flex'; }
-        window.closeModal = function() { document.getElementById('customModal').style.display='none'; }
-        window.speak = function(t) { let s = new SpeechSynthesisUtterance(t); s.lang='en-US'; window.speechSynthesis.speak(s); }
-        window.showMeaning = function() { document.getElementById('displayAr').innerText = currentWord.ar; document.getElementById('displayAr').style.display='block'; document.getElementById('showBtn').style.display='none'; }
-        window.updateWriteUI = function() { document.getElementById('writeFields').style.display = document.getElementById('writeMode').checked ? 'block' : 'none'; }
-        window.resetCard = function() { trainIdx = 0; document.getElementById('displayEn').innerText = "جاهز؟"; document.getElementById('displayAr').style.display='none'; }
-        
-        window.showTab = function(id) {
-            document.querySelectorAll('.content, .navbar button').forEach(e=>e.classList.remove('active'));
-            document.getElementById(id).classList.add('active'); document.getElementById('tab-'+id).classList.add('active');
-            if(id==='list') renderList();
-        }
+        };
     </script>
 </body>
 </html>
